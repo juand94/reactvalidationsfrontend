@@ -1,25 +1,32 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import FileUploadPage from './pages/FileUploadPage';
+import UploadResultsPage from './pages/UploadResultsPage';
+import ProtectedRoute from './pages/ProtectedRoute';
 
 function App() {
+  // Placeholder for authentication state; implement as needed
+  const isAuthenticated = !!localStorage.getItem('jwtToken');
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Routes>
+        {/* Login Route */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/upload"
+          element={<ProtectedRoute element={<FileUploadPage />} isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          path="/upload-results"
+          element={<ProtectedRoute element={<UploadResultsPage />} isAuthenticated={isAuthenticated} />}
+        />
+
+        {/* Redirect any other route to /login */}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
   );
 }
 

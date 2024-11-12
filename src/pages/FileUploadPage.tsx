@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-//import { error } from 'console';
 
 interface Record {
   id: number;
@@ -43,8 +42,6 @@ const FileUploadPage: React.FC = () => {
         });
 
         const { success, errors } = response.data.data;
-        console.log("sabiendo",response.data.data.errors);
-        // Handle errors (if any)
         if (!success) {
           setErrorMessages(errors || ['Unknown error occurred during file upload.']);
         }
@@ -77,8 +74,8 @@ const FileUploadPage: React.FC = () => {
     } catch (error) {
       console.error('Error during logout:', error);
     }
+    
   };
-
   // Redirect to login page if not authenticadted
   if (!isAuthenticated) {
     navigate('/login');
@@ -87,7 +84,6 @@ const FileUploadPage: React.FC = () => {
 
   // Handle inline field editing
   const handleFieldChange = (id: number, field: string, value: string) => {
-    console.log("estso los campos",id, field, value);
     setRecords((prevRecords) =>
       prevRecords.map((record) =>
         record.id === id ? { ...record, [field]: value } : record
@@ -107,7 +103,7 @@ const FileUploadPage: React.FC = () => {
         formData.append('age', record.age.toString());
         formData.append('password', "Elpassword")
         console.log("formData para el registro individual:", formData);
-        const response = await axios.post('http://localhost:5500/register', formData, {
+        await axios.post('http://localhost:5500/register', formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
@@ -127,7 +123,7 @@ const FileUploadPage: React.FC = () => {
         setSuccessMessage(`${successfullySavedRecords.length} Registro Guardados.`);
       }
     } catch (error) {
-      console.error('Error saving record:', error);
+      console.error('Error Guardando Registro:', error);
       setErrorMessages(['Error Guardando el Registro']);
     }
   };
@@ -136,17 +132,14 @@ const FileUploadPage: React.FC = () => {
   try {
     const token = localStorage.getItem('jwtToken');
     if (!token) {
-      setErrorMessages(['User is not authenticated.']);
+      setErrorMessages(['Usuario no Autenticado.']);
       return;
     }
 
-    // Filter records with no errors
 const updatedRecords = records.filter((record) => !record.errorDetails?.length);
-    //   (record) => Array.isArray(record.errorDetails) && record.errorDetails.length === 2
-    //);
-    console.log(updatedRecords);
+
     if (!updatedRecords.length) {
-      setErrorMessages(['No valid records to save.']);
+      setErrorMessages(['No hay registros Validos.']);
       return;
     }
 
@@ -161,18 +154,16 @@ const updatedRecords = records.filter((record) => !record.errorDetails?.length);
         formData.append('age', record.age.toString());
         formData.append('password', "Elpassword");
 
-        const response = await axios.post('http://localhost:5500/register', formData, {
+        await axios.post('http://localhost:5500/register', formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
 
-        console.log(`Record saved: ${record.id}`, response.data);
         successfullySavedRecords.push(record.id);
       } catch (err) {
-        console.error(`Error saving record ${record.id}:`, err);
-        errors.push(`Failed to save record with ID: ${record.id}`);
+        errors.push(`Error al guardar el registro con ID: ${record.id}`);
       }
     }
 
@@ -188,13 +179,8 @@ const updatedRecords = records.filter((record) => !record.errorDetails?.length);
     } else {
         setErrorMessages([]);
         setSuccessMessage(`${successfullySavedRecords.length} Registro Guardados.`);
-
-      //navigate('/upload', {
-//state: { success: true, errors: [] },
-      //});
     }
   } catch (error) {
-    console.error('Error saving changes:', error);
     setErrorMessages(['Error saving the corrected records.'])
     setSuccessMessage(null);
   }
@@ -213,7 +199,6 @@ const updatedRecords = records.filter((record) => !record.errorDetails?.length);
         </div>
       )}
       {successMessage && <div className="bg-green-100 text-green-700 p-4 rounded mb-4">{successMessage}</div>}
-      {/* <input type="file" accept=".csv" onChange={handleFileChange} className="border p-2 mb-4" /> */}
       <label className="border p-2 mb-4 bg-blue-500 text-white rounded cursor-pointer inline-block">
         Seleccionar archivo CSV
         <input
@@ -233,7 +218,7 @@ const updatedRecords = records.filter((record) => !record.errorDetails?.length);
 
       {records.length > 0 && (
         <div className='mt-8'>
-          <h2 className="text-xl font-bold mb-4">Errores</h2>
+          <h2 className="text-xl font-bold mb-4">Errores Encontrados en los Registros Importados</h2>
           <table className="min-w-full bg-white border border-gray-200">
             <thead>
               <tr>
@@ -296,7 +281,7 @@ const updatedRecords = records.filter((record) => !record.errorDetails?.length);
               ))}
             </tbody>
           </table>
-          <button onClick={handleSaveChanges}>Save All Corrected Records</button>
+          <button className='bg-green-500 text-white px-2 py-2 my-4 rounded' onClick={handleSaveChanges}>Guardar todos los Corregidos</button>
         </div>
       )}
     </div>

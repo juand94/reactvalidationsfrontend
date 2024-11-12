@@ -1,32 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import FileUploadPage from './pages/FileUploadPage';
-import UploadResultsPage from './pages/UploadResultsPage';
-import ProtectedRoute from './pages/ProtectedRoute';
+import AuthLayout from './pages/AuthLayout';
+import { AuthProvider } from './components/AuthContext';
 
 function App() {
-  // Placeholder for authentication state; implement as needed
-  const isAuthenticated = !!localStorage.getItem('jwtToken');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+   // Monitorear el token en localStorage para actualizar isAuthenticated
+   useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('jwtToken');
+      setIsAuthenticated(!!token); // Actualiza si el token está presente
+    };
+    // Ejecutar checkAuth al montar el componente y cuando haya cambios en localStorage
+    checkAuth();
+    window.addEventListener('storage', checkAuth); // Escuchar cambios en localStorage
+
+    return () => window.removeEventListener('storage', checkAuth);
+  }, [isAuthenticated]);
   return (
+    <AuthProvider>
       <Routes>
-        {/* Login Route */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/upload"
-          element={<ProtectedRoute element={<FileUploadPage />} isAuthenticated={isAuthenticated} />}
-        />
-        <Route
-          path="/upload-results"
-          element={<ProtectedRoute element={<UploadResultsPage />} isAuthenticated={isAuthenticated} />}
-        />
+        <Route element={<AuthLayout />}>
+          <Route path="/upload" element={<FileUploadPage />} />
+        </Route>
 
-        {/* Redirect any other route to /login */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
+      </AuthProvider>
   );
 }
 

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../components/AuthContext';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,8 +21,8 @@ const LoginPage: React.FC = () => {
       const { token } = response.data.data;
       console.log(response.data.data);
       if (token) {
-        localStorage.setItem('jwtToken', token); // Guardar el token en localStorage
-        navigate('/upload'); // Navegar a la página de carga
+        login(token);
+        navigate('/upload');
       } else {
         console.log('Token no encontrado en los datos de respuesta');
       }
